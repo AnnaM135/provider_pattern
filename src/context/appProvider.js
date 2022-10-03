@@ -1,49 +1,55 @@
-import React, { createContext } from "react";
+import React, { useState, useEffect } from "react";
 import { getLocaleCode, getlocaleByCode } from "../data/index";
-import {AppContext} from "./appContext";
+import { AppContext } from "./appContext";
 
-export class AppProvider extends React.Component {
-  state = {
+export const AppProvider = (props) => {
+
+  const [state, setState] = useState({
     localeCodes: [],
-    localeObj: null,
+    localeObj: {},
     theme: "light"
-  };
-
-  updateLocalCode = async (e) => {
+  })
+  const updateLocalCode = async (e) => {
     try {
       const localeObj = await getlocaleByCode(e.target.value);
-      this.setState({ localeObj });
+      setState(() => (
+        {...state, localeObj}
+      ));
     } catch (err) {
       console.log(err);
     }
   };
 
-  updateTheme = (e) => {
-    this.setState({ theme: e.target.checked ? "dark" : "light" });
+  const updateTheme = (e) => {
+    setState(() => (
+      { ...state, theme: e.target.checked ? "dark" : "light" }
+    ));
   };
-  render() {
-    return (
-      <AppContext.Provider
-        value={{
-          state: this.state,
-          updateLocale: this.updateLocalCode,
-          updateTheme: this.updateTheme
-        }}
-      >
-        <div className={this.state.theme}>{this.props.children}dfsdfsdf</div>
-      </AppContext.Provider>
-    );
-  }
 
-  componentDidMount = async () => {
+  useEffect(() => {
+    func()
+  }, [])
+
+  const func = async () => {
     try {
       const localeCodes = await getLocaleCode();
       const localeObj = await getlocaleByCode();
-      this.setState({ localeCodes, localeObj });
+      setState({ localeCodes, localeObj });
     } catch (err) {
       console.log(err);
     }
   };
+  return (
+    <AppContext.Provider
+      value={{
+        state: state,
+        updateLocale: updateLocalCode,
+        updateTheme: updateTheme
+      }}
+    >
+      <div className={state.theme}>{props.children}</div>
+    </AppContext.Provider>
+  );
+
+
 }
-
-
